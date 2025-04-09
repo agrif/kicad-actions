@@ -29,4 +29,6 @@ runs:
       shell: bash
       run: |
         kicad-cli sch erc --format json --output "${{ inputs.output }}" ${{ inputs.args }} "${{ steps.find.outputs.schematic }}"
-        ${{ github.action_path }}/../kipper.py format-erc "${{ inputs.output }}"
+
+        echo "# ERC for \`${{ steps.find.outputs.schematic }}\`" >> "$GITHUB_STEP_SUMMARY"
+        ${{ github.action_path }}/../kipper.py format-erc "${{ inputs.output }}" >> "$GITHUB_STEP_SUMMARY"

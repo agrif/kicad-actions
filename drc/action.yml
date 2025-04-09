@@ -29,4 +29,6 @@ runs:
       shell: bash
       run: |
         kicad-cli pcb drc --format json --output "${{ inputs.output }}" ${{ inputs.args }} "${{ steps.find.outputs.pcb }}"
-        ${{ github.action_path }}/../kipper.py format-drc "${{ inputs.output }}"
+
+        echo "# DRC for \`${{ steps.find.outputs.pcb }}\`" >> "$GITHUB_STEP_SUMMARY"
+        ${{ github.action_path }}/../kipper.py format-drc "${{ inputs.output }}" >> "$GITHUB_STEP_SUMMARY"
