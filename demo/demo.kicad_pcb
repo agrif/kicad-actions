@@ -2636,7 +2636,7 @@
 				)
 			)
 		)
-		(property "Value" "USR"
+		(property "Value" "USER"
 			(at 0 1.829999 0)
 			(layer "F.SilkS")
 			(uuid "7a7cda84-38c1-4dda-b1a6-3ac159e1be4b")
