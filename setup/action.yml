@@ -16,9 +16,9 @@ runs:
         sudo apt-add-repository --yes ppa:kicad/kicad-${{ inputs.version}}-releases
         sudo apt-get update
 
-    - name: install KiCad
+    - name: install KiCad and helper depedencies
       shell: bash
-      run: sudo apt-get install --yes kicad
+      run: sudo apt-get install --yes kicad python3 python3-click
 
     - name: use default KiCad library tables
       shell: bash
