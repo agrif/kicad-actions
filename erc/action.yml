@@ -1,0 +1,15 @@
+name: KiCad ERC
+description: Run the KiCad electrical rules check.
+
+inputs:
+  schematic:
+    description: the KiCad schematic to run the ERC on
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: run erc
+      shell: bash
+      run: ${{ github.action_path }}/../kipper.py erc "${{ inputs.schematic }}"
