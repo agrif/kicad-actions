@@ -70,14 +70,6 @@ def schematic_file(path=None):
 def pcb_file(path=None):
     return find_project_extension('.kicad_pcb', path)
 
-def kicad_cli(*args, **kwargs):
-    cmd = os.environ.get('KICAD_CLI', 'kicad-cli')
-    cmd = shlex.split(cmd)
-    try:
-        subprocess.run([*cmd, *args], check=True, stdout=sys.stderr, **kwargs)
-    except FileNotFoundError:
-        raise RuntimeError('kicad-cli not found. Set $KICAD_CLI to point to it, or add it to your $PATH.') from None
-
 @cli.command
 @click.argument('path', required=False, type=click.Path())
 def find_project(path):
@@ -126,48 +118,20 @@ def markdown_report(outer, data):
             print('   *', description, pos)
 
 @cli.command
-@click.option('-f', '--format', type=click.Choice(['markdown', 'json'], case_sensitive=False))
-@click.argument('path', required=False, type=click.Path())
-def erc(format, path):
-    sch = schematic_file(path)
-    with tempfile.TemporaryDirectory(prefix='kipper.') as d:
-        report = pathlib.Path(d) / 'report.json'
-        kicad_cli('sch', 'erc', '--format=json', '-o', report, sch)
-        with open(report) as f:
-            data = f.read()
-
-    if format == 'json':
-        print(data)
-    else:
-        data = json.loads(data)
-        sheets = data.get('sheets', [])
-        for sheet in sheets:
-            if len(sheets) > 1:
-                print('#### Schematic', markdown_escape(sheet.get('path', '<unknown>')))
-            markdown_report(data, sheet)
+@click.argument('path', type=click.File('r'))
+def format_erc(path):
+    data = json.load(path)
+    sheets = data.get('sheets', [])
+    for sheet in sheets:
+        if len(sheets) > 1:
+            print('#### Schematic', markdown_escape(sheet.get('path', '<unknown>')))
+        markdown_report(data, sheet)
 
 @cli.command
-@click.option('-f', '--format', type=click.Choice(['markdown', 'json'], case_sensitive=False))
-@click.option('--schematic-parity/--no-schematic-parity', default=True)
-@click.argument('path', required=False, type=click.Path())
-def drc(format, schematic_parity, path):
-    pcb = pcb_file(path)
-    with tempfile.TemporaryDirectory(prefix='kipper.') as d:
-        report = pathlib.Path(d) / 'report.json'
-
-        args = []
-        if schematic_parity:
-            args.append('--schematic-parity')
-
-        kicad_cli('pcb', 'drc', '--format=json', *args, '-o', report, pcb)
-        with open(report) as f:
-            data = f.read()
-
-    if format == 'json':
-        print(data)
-    else:
-        data = json.loads(data)
-        markdown_report(data, data)
+@click.argument('path', type=click.File('r'))
+def format_drc(path):
+    data = json.load(path)
+    markdown_report(data, data)
 
 if __name__ == '__main__':
     cli()

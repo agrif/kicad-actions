@@ -6,10 +6,23 @@ inputs:
     description: the KiCad schematic to run the ERC on
     required: false
     default: ''
+  output:
+    description: the location to save the JSON report
+    required: false
+    default: '${{ runner.temp }}/erc.json'
 
 runs:
   using: composite
   steps:
+    - name: find schematic
+      id: find
+      shell: bash
+      run: |
+        echo -n "schematic=" >> "$GITHUB_OUTPUT"
+        ${{ github.action_path }}/../kipper.py find-schematic "${{ inputs.schematic }}" >> "$GITHUB_OUTPUT"
+
     - name: run erc
       shell: bash
-      run: ${{ github.action_path }}/../kipper.py erc "${{ inputs.schematic }}"
+      run: |
+        kicad-cli sch erc --format json --output "${{ inputs.output }}" "${{ steps.find.outputs.schematic }}"
+        ${{ github.action_path }}/../kipper.py format-erc "${{ inputs.output }}"
