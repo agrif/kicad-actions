@@ -1,0 +1,21 @@
+name: Setup KiCad
+description: Install and setup KiCad.
+
+inputs:
+  version:
+    description: the X.Y KiCad version to install
+    required: false
+    default: '9.0'
+
+runs:
+  using: composite
+  steps:
+    - name: add KiCad PPA
+      shell: bash
+      run: |
+        sudo apt-add-repository --yes ppa:kicad/kicad-${{ inputs.version}}-releases
+        sudo apt-get update
+
+    - name: install KiCad
+      shell: bash
+      run: sudo apt-get install --yes kicad
