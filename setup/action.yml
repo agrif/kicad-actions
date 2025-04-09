@@ -18,7 +18,7 @@ runs:
 
     - name: install KiCad and helper depedencies
       shell: bash
-      run: sudo apt-get install --yes kicad python3 python3-click
+      run: sudo apt-get install --yes kicad python3 python3-click python3-requests
 
     - name: use default KiCad library tables
       shell: bash

@@ -1,0 +1,48 @@
+name: Preview PCB
+description: Render a small preview of a PCB.
+
+inputs:
+  pcb:
+    description: the KiCad PCB to preview
+    required: false
+    default: ''
+  output-top:
+    description: the location to save the top image
+    required: false
+    default: '${{ runner.temp }}/top.png'
+  output-bottom:
+    description: the location to save the bottom image
+    required: false
+    default: '${{ runner.temp }}/bottom.png'
+  args:
+    description: extra arguments to pass to kicad-cli
+    required: false
+    default: ''
+  upload:
+    description: upload to third party host and include in summary
+    required: false
+    default: true
+
+runs:
+  using: composite
+  steps:
+    - name: find pcb
+      id: find
+      shell: bash
+      run: |
+        echo -n "pcb=" >> "$GITHUB_OUTPUT"
+        ${{ github.action_path }}/../kipper.py find-pcb "${{ inputs.pcb }}" >> "$GITHUB_OUTPUT"
+
+    - name: render
+      shell: bash
+      run: |
+        kicad-cli pcb render --output "${{ inputs.output-top }}" --side=top --width=400 --height=300 ${{ inputs.args }} "${{ steps.find.outputs.pcb}}"
+        kicad-cli pcb render --output "${{ inputs.output-bottom }}" --side=bottom --width=400 --height=300 ${{ inputs.args }} "${{ steps.find.outputs.pcb}}"
+
+    - name: upload
+      if: inputs.upload
+      shell: bash
+      run: |
+        echo "# Preview of \`${{ steps.find.outputs.pcb }}\`" >> "$GITHUB_STEP_SUMMARY"
+        ${{ github.action_path }}/../kipper.py upload-image Top "${{ inputs.output-top }}" >> "$GITHUB_STEP_SUMMARY"
+        ${{ github.action_path }}/../kipper.py upload-image Bottom "${{ inputs.output-bottom }}" >> "$GITHUB_STEP_SUMMARY"

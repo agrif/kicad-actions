@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import mimetypes
 import os
 import pathlib
 import shlex
@@ -9,6 +10,11 @@ import sys
 import tempfile
 
 import click
+import requests
+
+# 🙏
+UPLOADER = 'https://up.em32.site/'
+USER_AGENT = 'kicad-actions/0 https://github.com/agrif/kicad-actions'
 
 @click.group
 def cli():
@@ -132,6 +138,26 @@ def format_erc(path):
 def format_drc(path):
     data = json.load(path)
     markdown_report(data, data)
+
+def upload(path):
+    headers = {
+        'user-agent': USER_AGENT,
+    }
+
+    mime, _ = mimetypes.guess_type(path.name)
+    if mime:
+        headers['content-type'] = mime
+
+    r = requests.post(UPLOADER, data=path, headers=headers)
+    r.raise_for_status()
+    return r.text
+
+@cli.command
+@click.argument('label')
+@click.argument('path', type=click.File('rb'))
+def upload_image(label, path):
+    url = upload(path)
+    print('![{}]({})'.format(label, url))
 
 if __name__ == '__main__':
     cli()
