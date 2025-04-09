@@ -19,3 +19,15 @@ runs:
     - name: install KiCad
       shell: bash
       run: sudo apt-get install --yes kicad
+
+    - name: print KiCad version
+      shell: bash
+      run: kicad-cli version
+
+    - name: print KiCad commit
+      shell: bash
+      run: kicad-cli version --format=commit
+
+    - name: print KiCad info
+      shell: bash
+      run: kicad-cli version --format=about

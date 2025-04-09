@@ -6,7 +6,4 @@ jobs:
     name: Demonstration Board
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./setup
-
-      - run: kicad-cli version
