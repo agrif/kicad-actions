@@ -8,3 +8,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./setup
       - uses: ./erc
+      - uses: ./drc

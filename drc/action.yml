@@ -1,0 +1,32 @@
+name: KiCad DRC
+description: Run the KiCad design rules check.
+
+inputs:
+  pcb:
+    description: the KiCad PCB to run the ERC on
+    required: false
+    default: ''
+  output:
+    description: the location to save the JSON report
+    required: false
+    default: '${{ runner.temp }}/drc.json'
+  args:
+    description: extra arguments to pass to kicad-cli
+    required: false
+    default: '--schematic-parity'
+
+runs:
+  using: composite
+  steps:
+    - name: find pcb
+      id: find
+      shell: bash
+      run: |
+        echo -n "pcb=" >> "$GITHUB_OUTPUT"
+        ${{ github.action_path }}/../kipper.py find-pcb "${{ inputs.pcb }}" >> "$GITHUB_OUTPUT"
+
+    - name: run drc
+      shell: bash
+      run: |
+        kicad-cli pcb drc --format json --output "${{ inputs.output }}" ${{ inputs.args }} "${{ steps.find.outputs.pcb }}"
+        ${{ github.action_path }}/../kipper.py format-drc "${{ inputs.output }}"
