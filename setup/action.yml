@@ -20,14 +20,15 @@ runs:
       shell: bash
       run: sudo apt-get install --yes kicad
 
+    - name: use default KiCad library tables
+      shell: bash
+      run: |
+        mkdir -p ~/.config/kicad/$(kicad-cli -v | cut -d . -f 1,2)
+        cp /usr/share/kicad/template/*-lib-table ~/.config/kicad/$(kicad-cli -v | cut -d . -f 1,2)
+
     - name: print KiCad version
       shell: bash
-      run: kicad-cli version
-
-    - name: print KiCad commit
-      shell: bash
-      run: kicad-cli version --format=commit
-
-    - name: print KiCad info
-      shell: bash
-      run: kicad-cli version --format=about
+      run: |
+        kicad-cli version
+        kicad-cli version --format=commit
+        kicad-cli version --format=about
