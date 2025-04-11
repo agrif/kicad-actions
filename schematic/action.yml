@@ -23,6 +23,11 @@ inputs:
     required: false
     default: 72
 
+outputs:
+  output:
+    description: the generated schematic
+    value: ${{ inputs.output }}
+
 runs:
   using: composite
   steps:

@@ -23,6 +23,14 @@ inputs:
     required: false
     default: true
 
+outputs:
+  output-top:
+    description: the rendered top image
+    value: ${{ inputs.output-top }}
+  output-bottom:
+    description: the rendered bottom image
+    value: ${{ inputs.output-bottom }}
+
 runs:
   using: composite
   steps:

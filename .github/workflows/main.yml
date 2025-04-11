@@ -21,8 +21,8 @@ jobs:
         with:
           name: generated
           path: |
-            ${{ steps.preview-pcb.inputs.output-top }}
-            ${{ steps.preview-pcb.inputs.output-bottom }}
-            ${{ steps.schematic.inputs.output }}
-            ${{ steps.erc.inputs.output }}
-            ${{ steps.drc.inputs.output }}
+            ${{ steps.preview-pcb.outputs.output-top }}
+            ${{ steps.preview-pcb.outputs.output-bottom }}
+            ${{ steps.schematic.outputs.output }}
+            ${{ steps.erc.outputs.output }}
+            ${{ steps.drc.outputs.output }}
