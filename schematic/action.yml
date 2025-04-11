@@ -1,0 +1,50 @@
+name: Generate Schematic
+description: Generate a PDF schematic from KiCad.
+
+inputs:
+  schematic:
+    description: the KiCad schematic to use
+    required: false
+    default: ''
+  output:
+    description: the location to save the schematic
+    required: false
+    default: '${{ runner.temp }}/schematic.pdf'
+  args:
+    description: extra arguments to pass to kicad-cli
+    required: false
+    default: ''
+  upload:
+    description: upload to third party host and include in summary
+    required: false
+    default: true
+  preview-dpi:
+    description: preview image DPI when using upload
+    required: false
+    default: 72
+
+runs:
+  using: composite
+  steps:
+    - name: find schematic
+      id: find
+      shell: bash
+      run: |
+        echo -n "schematic=" >> "$GITHUB_OUTPUT"
+        ${{ github.action_path }}/../kipper.py find-schematic "${{ inputs.schematic }}" >> "$GITHUB_OUTPUT"
+
+    - name: export pdf
+      shell: bash
+      run: |
+        kicad-cli sch export pdf --output "${{ inputs.output }}" ${{ inputs.args }} "${{ steps.find.outputs.schematic }}"
+
+    - name: upload
+      if: inputs.upload
+      shell: bash
+      run: |
+        convert -alpha remove -density "${{ inputs.preview-dpi }}" "${{ inputs.output }}" "${{ inputs.output }}.preview-%04d.png"
+        convert -background none -gravity Center "${{ inputs.output }}.preview-*.png" "${{ inputs.output }}.preview.png"
+
+        echo "# Schematic of \`${{ steps.find.outputs.schematic }}\`" >> "$GITHUB_STEP_SUMMARY"
+        ${{ github.action_path }}/../kipper.py upload-image "Schematic Preview" "${{ inputs.output }}.preview.png" >> "$GITHUB_STEP_SUMMARY"
+        ${{ github.action_path }}/../kipper.py upload-link "Schematic PDF" "${{ inputs.output }}" >> "$GITHUB_STEP_SUMMARY"

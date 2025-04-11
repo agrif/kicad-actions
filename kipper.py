@@ -159,5 +159,12 @@ def upload_image(label, path):
     url = upload(path)
     print('![{}]({})'.format(label, url))
 
+@cli.command
+@click.argument('label')
+@click.argument('path', type=click.File('rb'))
+def upload_link(label, path):
+    url = upload(path)
+    print('[{}]({})'.format(label, url))
+
 if __name__ == '__main__':
     cli()
